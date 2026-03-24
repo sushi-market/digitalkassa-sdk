@@ -1,0 +1,23 @@
+# Composer files
+composer.phar
+composer.lock
+vendor/
+
+# Test cache
+.phpunit.cache/
+.phpunit.result.cache
+coverage/
+build/
+.php-cs-fixer.cache
+.phpstan.cache
+.phpstan/
+.cache/
+
+# OS files
+.DS_Store
+
+# IDE and editor files
+.idea/
+.vscode/
+.fleet/
+.zed/

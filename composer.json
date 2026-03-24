@@ -1,0 +1,51 @@
+{
+    "name": "sushi-market/digitalkassa-sdk",
+    "description": "PHP SDK for DigitalKassa API v2.1",
+    "keywords": ["digitalkassa", "api", "php", "sdk", "receipt"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "m0nclous",
+            "email": "m0nclous@vk.com",
+            "homepage": "https://t.me/m0nclous"
+        }
+    ],
+    "repositories": [
+        {
+            "type": "path",
+            "url": "../atol-online-sdk",
+            "canonical": false,
+            "options": {
+                "symlink": false
+            }
+        }
+    ],
+    "require": {
+        "php": "^8.4",
+        "guzzlehttp/guzzle": "^7.10",
+        "brick/json-mapper": "^0.1.1"
+    },
+    "require-dev": {
+        "laravel/pint": "^1.25.0",
+        "phpunit/phpunit": "^11.5",
+        "psy/psysh": "^0.12.14",
+        "sushi-market/atol-online-sdk": "^1.2.0",
+        "symfony/var-dumper": "^7.3",
+        "phpstan/phpstan": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "DF\\DigitalKassa\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "pint --test",
+        "stan": "phpstan analyse --memory-limit=512M --no-progress"
+    }
+}

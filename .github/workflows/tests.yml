@@ -1,0 +1,247 @@
+name: Tests
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tests-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: xdebug
+          tools: composer:v2
+
+      - name: Get Composer cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run PHPStan
+        id: stan
+        continue-on-error: true
+        run: |
+          mkdir -p build
+          set +e
+          composer stan -- --error-format=table --no-progress > "$PWD/build/phpstan.txt" 2>&1
+          status=$?
+          set -e
+          cat "$PWD/build/phpstan.txt"
+          exit $status
+
+      - name: Run PHPUnit with coverage and reports
+        id: phpunit
+        continue-on-error: true
+        run: |
+          mkdir -p build
+          set +e
+          vendor/bin/phpunit \
+            --log-junit "$PWD/build/junit.xml" \
+            --coverage-clover "$PWD/build/clover.xml" \
+            --coverage-text \
+            --only-summary-for-coverage-text \
+            --coverage-filter src \
+            > "$PWD/build/coverage.txt" 2>&1
+          status=$?
+          set -e
+          cat "$PWD/build/coverage.txt"
+          exit $status
+
+      - name: Enforce 100% coverage
+        id: coverage
+        if: always() && steps.phpunit.outcome == 'success'
+        continue-on-error: true
+        run: |
+          php -r '
+          $coverage = file_get_contents(getcwd() . "/build/coverage.txt");
+          foreach (["Classes", "Methods", "Lines"] as $metric) {
+              if (! preg_match("/{$metric}:\\s+100\\.00%/", $coverage)) {
+                  fwrite(STDERR, $coverage);
+                  exit(1);
+              }
+          }
+          '
+
+      - name: Check code style
+        id: pint
+        if: always()
+        continue-on-error: true
+        run: vendor/bin/pint --test
+
+      - name: Lint PHP files
+        id: lint
+        if: always()
+        continue-on-error: true
+        run: find src tests -name '*.php' -print0 | xargs -0 -n1 php -l
+
+      - name: Upload test artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: php84-test-reports
+          path: build/
+          if-no-files-found: ignore
+          retention-days: 14
+
+      - name: Publish job summary
+        if: always()
+        env:
+          STAN_OUTCOME: ${{ steps.stan.outcome }}
+          PHPUNIT_OUTCOME: ${{ steps.phpunit.outcome }}
+          COVERAGE_OUTCOME: ${{ steps.coverage.outcome }}
+          PINT_OUTCOME: ${{ steps.pint.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+        run: |
+          python3 - <<'PY' >> "$GITHUB_STEP_SUMMARY"
+          import os
+          import re
+          import xml.etree.ElementTree as ET
+          from pathlib import Path
+
+          def icon(outcome: str) -> str:
+              return {
+                  "success": "✅",
+                  "failure": "❌",
+                  "cancelled": "⚪",
+                  "skipped": "➖",
+              }.get(outcome, "➖")
+
+          print("## CI Summary")
+          print("| Check | Status |")
+          print("| --- | --- |")
+          for label, key in [
+              ("PHPStan", "STAN_OUTCOME"),
+              ("PHPUnit", "PHPUNIT_OUTCOME"),
+              ("Coverage 100% gate", "COVERAGE_OUTCOME"),
+              ("Pint", "PINT_OUTCOME"),
+              ("PHP lint", "LINT_OUTCOME"),
+          ]:
+              outcome = os.getenv(key, "skipped")
+              print(f"| {label} | {icon(outcome)} `{outcome}` |")
+
+          phpstan_path = Path("build/phpstan.txt")
+          if phpstan_path.exists():
+              phpstan_text = phpstan_path.read_text()
+              print("\n### PHPStan")
+              match = re.search(r"Found (\d+) errors", phpstan_text)
+              if match:
+                  print(f"- Errors: `{match.group(1)}`")
+              elif "[OK]" in phpstan_text:
+                  print("- No errors")
+
+          junit_path = Path("build/junit.xml")
+          if junit_path.exists():
+              root = ET.parse(junit_path).getroot()
+              suite = root.find("./testsuite")
+              if suite is not None:
+                  print("\n### PHPUnit")
+                  print("| Tests | Assertions | Failures | Errors | Skipped | Time |")
+                  print("| ---: | ---: | ---: | ---: | ---: | ---: |")
+                  print(
+                      "| {tests} | {assertions} | {failures} | {errors} | {skipped} | {time:.3f}s |".format(
+                          tests=suite.attrib.get("tests", "0"),
+                          assertions=suite.attrib.get("assertions", "0"),
+                          failures=suite.attrib.get("failures", "0"),
+                          errors=suite.attrib.get("errors", "0"),
+                          skipped=suite.attrib.get("skipped", "0"),
+                          time=float(suite.attrib.get("time", "0") or 0),
+                      )
+                  )
+
+          coverage_path = Path("build/coverage.txt")
+          if coverage_path.exists():
+              coverage_text = coverage_path.read_text()
+              matches = {}
+              for metric in ("Classes", "Methods", "Lines"):
+                  match = re.search(rf"{metric}:\s+([0-9]+\.[0-9]+%) \((\d+)/(\d+)\)", coverage_text)
+                  if match:
+                      matches[metric] = match.groups()
+
+              if matches:
+                  print("\n### Coverage")
+                  print("| Metric | Coverage | Covered / Total |")
+                  print("| --- | ---: | ---: |")
+                  for metric in ("Classes", "Methods", "Lines"):
+                      if metric in matches:
+                          percent, covered, total = matches[metric]
+                          print(f"| {metric} | {percent} | {covered} / {total} |")
+
+          print("\n### Artifacts")
+          print("- `build/phpstan.txt`")
+          print("- `build/junit.xml`")
+          print("- `build/clover.xml`")
+          print("- `build/coverage.txt`")
+          PY
+
+      - name: Fail job if any check failed
+        if: always()
+        env:
+          STAN_OUTCOME: ${{ steps.stan.outcome }}
+          PHPUNIT_OUTCOME: ${{ steps.phpunit.outcome }}
+          COVERAGE_OUTCOME: ${{ steps.coverage.outcome }}
+          PINT_OUTCOME: ${{ steps.pint.outcome }}
+          LINT_OUTCOME: ${{ steps.lint.outcome }}
+        run: |
+          php -r '
+          $stan = getenv("STAN_OUTCOME");
+          $phpunit = getenv("PHPUNIT_OUTCOME");
+          $coverage = getenv("COVERAGE_OUTCOME");
+          $pint = getenv("PINT_OUTCOME");
+          $lint = getenv("LINT_OUTCOME");
+
+          $failed = [];
+
+          if ($stan !== "success") {
+              $failed[] = "phpstan";
+          }
+
+          if ($phpunit !== "success") {
+              $failed[] = "phpunit";
+          }
+
+          if ($phpunit === "success" && $coverage !== "success") {
+              $failed[] = "coverage";
+          }
+
+          if ($pint !== "success") {
+              $failed[] = "pint";
+          }
+
+          if ($lint !== "success") {
+              $failed[] = "lint";
+          }
+
+          if ($failed !== []) {
+              fwrite(STDERR, "Failed checks: " . implode(", ", $failed) . PHP_EOL);
+              exit(1);
+          }
+          '
