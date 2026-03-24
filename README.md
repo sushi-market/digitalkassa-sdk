@@ -15,8 +15,8 @@ composer require sushi-market/digitalkassa-sdk
 ```
 
 ```php
-use DF\DigitalKassa\V21\DigitalKassaApi;
-use DF\DigitalKassa\V21\ValueObjects\Credentials;
+use DF\DigitalKassa\V2\DigitalKassaApi;
+use DF\DigitalKassa\V2\ValueObjects\Credentials;
 
 $digitalkassa = new DigitalKassaApi(
     credentials: new Credentials(
@@ -39,7 +39,7 @@ $digitalkassa = new DigitalKassaApi(
 ### Начисление НДС (из цены без НДС в цену с НДС)
 
 ```php
-use DF\DigitalKassa\V21\Enums\VatType;
+use DF\DigitalKassa\V2\Enums\VatType;
 
 $vat = VatType::VAT_20;
 
@@ -52,7 +52,7 @@ $gross = $vat->applyVat($net);
 ### Выделение НДС из суммы с НДС
 
 ```php
-use DF\DigitalKassa\V21\Enums\VatType;
+use DF\DigitalKassa\V2\Enums\VatType;
 
 $vat = VatType::VAT_20;
 
@@ -65,7 +65,7 @@ $vatAmount = $vat->extractVat($gross);
 ### Получение суммы без НДС
 
 ```php
-use DF\DigitalKassa\V21\Enums\VatType;
+use DF\DigitalKassa\V2\Enums\VatType;
 
 $vat = VatType::VAT_20;
 
@@ -90,20 +90,20 @@ $net = $vat->removeVat($gross);
 ## Быстрый пример создания чека
 
 ```php
-use DF\DigitalKassa\V21\DTO\Receipt\ItemDTO;
-use DF\DigitalKassa\V21\DTO\Receipt\ReceiptDTO;
-use DF\DigitalKassa\V21\DTO\Receipt\ReceiptRequestDTO;
-use DF\DigitalKassa\V21\DTO\Shared\AmountDTO;
-use DF\DigitalKassa\V21\DTO\Shared\LocationDTO;
-use DF\DigitalKassa\V21\DTO\Shared\NotifyDTO;
-use DF\DigitalKassa\V21\Enums\InternetMode;
-use DF\DigitalKassa\V21\Enums\ItemType;
-use DF\DigitalKassa\V21\Enums\PaymentMethod;
-use DF\DigitalKassa\V21\Enums\ReceiptType1054;
-use DF\DigitalKassa\V21\Enums\Taxation;
-use DF\DigitalKassa\V21\Enums\Timezone;
-use DF\DigitalKassa\V21\Enums\Unit;
-use DF\DigitalKassa\V21\Enums\VatType;
+use DF\DigitalKassa\V2\DTO\Receipt\ItemDTO;
+use DF\DigitalKassa\V2\DTO\Receipt\ReceiptDTO;
+use DF\DigitalKassa\V2\DTO\Receipt\ReceiptRequestDTO;
+use DF\DigitalKassa\V2\DTO\Shared\AmountDTO;
+use DF\DigitalKassa\V2\DTO\Shared\LocationDTO;
+use DF\DigitalKassa\V2\DTO\Shared\NotifyDTO;
+use DF\DigitalKassa\V2\Enums\InternetMode;
+use DF\DigitalKassa\V2\Enums\ItemType;
+use DF\DigitalKassa\V2\Enums\PaymentMethod;
+use DF\DigitalKassa\V2\Enums\ReceiptType1054;
+use DF\DigitalKassa\V2\Enums\Taxation;
+use DF\DigitalKassa\V2\Enums\Timezone;
+use DF\DigitalKassa\V2\Enums\Unit;
+use DF\DigitalKassa\V2\Enums\VatType;
 
 $response = $digitalkassa->createReceipt(new ReceiptRequestDTO(
     receipt_id: 'receipt123',
@@ -145,7 +145,7 @@ $cGroupInfo = $digitalkassa->getCGroupInfo();
 ### Получение статуса чека
 
 ```php
-use DF\DigitalKassa\V21\DTO\Receipt\ReceiptInfoRequestDTO;
+use DF\DigitalKassa\V2\DTO\Receipt\ReceiptInfoRequestDTO;
 
 $receiptInfo = $digitalkassa->getReceiptInfo(
     new ReceiptInfoRequestDTO(receipt_id: 'receipt123'),
@@ -155,9 +155,9 @@ $receiptInfo = $digitalkassa->getReceiptInfo(
 ### Создание чека коррекции
 
 ```php
-use DF\DigitalKassa\V21\DTO\CorrectionReceipt\CorrectionReceiptDTO;
-use DF\DigitalKassa\V21\DTO\CorrectionReceipt\CorrectionReceiptRequestDTO;
-use DF\DigitalKassa\V21\DTO\Shared\CorrectionNotifyDTO;
+use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptDTO;
+use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptRequestDTO;
+use DF\DigitalKassa\V2\DTO\Shared\CorrectionNotifyDTO;
 
 $correctionResponse = $digitalkassa->createCorrectionReceipt(new CorrectionReceiptRequestDTO(
     receipt_id: 'correction123',
@@ -189,7 +189,7 @@ $correctionResponse = $digitalkassa->createCorrectionReceipt(new CorrectionRecei
 ### Получение статуса чека коррекции
 
 ```php
-use DF\DigitalKassa\V21\DTO\CorrectionReceipt\CorrectionReceiptInfoRequestDTO;
+use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptInfoRequestDTO;
 
 $correctionInfo = $digitalkassa->getCorrectionReceiptInfo(
     new CorrectionReceiptInfoRequestDTO(receipt_id: 'correction123'),
@@ -199,9 +199,9 @@ $correctionInfo = $digitalkassa->getCorrectionReceiptInfo(
 ### Работа со сменой
 
 ```php
-use DF\DigitalKassa\V21\DTO\Shift\ShiftModeRequestDTO;
-use DF\DigitalKassa\V21\DTO\Shift\ShiftRequestDTO;
-use DF\DigitalKassa\V21\Enums\ShiftMode;
+use DF\DigitalKassa\V2\DTO\Shift\ShiftModeRequestDTO;
+use DF\DigitalKassa\V2\DTO\Shift\ShiftRequestDTO;
+use DF\DigitalKassa\V2\Enums\ShiftMode;
 
 $shiftReport = $digitalkassa->getShiftReport();
 

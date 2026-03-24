@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Tests\Unit;
 
 use DF\DigitalKassa\Exceptions\InvalidCredentialsException;
-use DF\DigitalKassa\V21\ValueObjects\Credentials;
+use DF\DigitalKassa\V2\ValueObjects\Credentials;
 use PHPUnit\Framework\TestCase;
 
 final class CredentialsTest extends TestCase
