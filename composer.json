@@ -10,16 +10,6 @@
             "homepage": "https://t.me/m0nclous"
         }
     ],
-    "repositories": [
-        {
-            "type": "path",
-            "url": "../atol-online-sdk",
-            "canonical": false,
-            "options": {
-                "symlink": false
-            }
-        }
-    ],
     "require": {
         "php": "^8.4",
         "guzzlehttp/guzzle": "^7.10",
