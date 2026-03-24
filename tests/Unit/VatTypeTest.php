@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use DF\DigitalKassa\V21\Enums\VatType;
+use DF\DigitalKassa\V2\Enums\VatType;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
 

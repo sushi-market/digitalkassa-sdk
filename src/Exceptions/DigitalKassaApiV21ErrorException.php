@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DF\DigitalKassa\Exceptions;
 
-use DF\DigitalKassa\V21\DTO\Shared\ErrorDTO;
+use DF\DigitalKassa\V2\DTO\Shared\ErrorDTO;
 use RuntimeException;
 
 class DigitalKassaApiV21ErrorException extends RuntimeException implements DigitalKassaException
