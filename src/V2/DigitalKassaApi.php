@@ -78,8 +78,8 @@ final readonly class DigitalKassaApi
 
         $this->authorizationStorage = new AuthorizationStorage($this->credentials);
         $this->mapper = new JsonMapper(
-            onExtraProperties: OnExtraProperties::IGNORE,
-            onMissingProperties: OnMissingProperties::SET_DEFAULT,
+            onExtraProperties: OnExtraProperties::Ignore,
+            onMissingProperties: OnMissingProperties::SetDefault,
         );
     }
 
