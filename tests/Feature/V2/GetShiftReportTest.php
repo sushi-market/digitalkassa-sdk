@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Tests\Feature\V2;
 
 use DF\DigitalKassa\V2\DigitalKassaApi;
-use DF\DigitalKassa\V2\DTO\CGroup\CGroupInfoResponseDTO;
+use DF\DigitalKassa\V2\DTO\Shift\ShiftReportResponseDTO;
 use DF\DigitalKassa\V2\ValueObjects\Credentials;
 use GuzzleHttp\ClientInterface;
 use GuzzleHttp\Psr7\Response;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
-final class GetCGroupInfoTest extends TestCase
+final class GetShiftReportTest extends TestCase
 {
     private ClientInterface&MockObject $httpClient;
 
@@ -37,7 +37,7 @@ final class GetCGroupInfoTest extends TestCase
     /**
      * Happy path: API вернул валидный JSON — метод возвращает заполненный DTO.
      */
-    public function test_get_c_group_info_returns_mapped_dto(): void
+    public function test_get_shift_report_returns_mapped_dto(): void
     {
         $this->httpClient
             ->expects($this->once())
@@ -45,17 +45,16 @@ final class GetCGroupInfoTest extends TestCase
             ->willReturn(new Response(
                 status: 200,
                 body: json_encode([
-                    'type' => 'online_store',
-                    'taxation' => 2,
-                    'billing_place_list' => [
-                        'https://example.com/',
-                    ],
+                    'shift_status' => 0,
+                    'shift_number' => 73,
+                    'check_number' => 0,
+                    'mode' => 0,
                 ]),
             ));
 
-        $result = $this->api->getCGroupInfo();
+        $result = $this->api->getShiftReport();
 
         /** @noinspection PhpConditionAlreadyCheckedInspection */
-        $this->assertInstanceOf(CGroupInfoResponseDTO::class, $result);
+        $this->assertInstanceOf(ShiftReportResponseDTO::class, $result);
     }
 }
