@@ -275,10 +275,7 @@ final readonly class DigitalKassaApi
             $headers['Authorization'] = $this->authorizationStorage->headerValue;
         }
 
-        /** @var array<string, string> $headers */
-        $headers = array_merge($headers, $request->getHeaders());
-
-        return $headers;
+        return array_merge($headers, $request->getHeaders());
     }
 
     /**

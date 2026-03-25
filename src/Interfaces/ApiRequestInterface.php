@@ -19,8 +19,5 @@ interface ApiRequestInterface
 
     public function getBody(): ?object;
 
-    /**
-     * @return array<string, string>
-     */
     public function getHeaders(): array;
 }
