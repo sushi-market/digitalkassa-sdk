@@ -9,7 +9,7 @@ use Brick\JsonMapper\JsonMapper;
 use Brick\JsonMapper\OnExtraProperties;
 use Brick\JsonMapper\OnMissingProperties;
 use DF\DigitalKassa\Enums\HttpAuthType;
-use DF\DigitalKassa\Exceptions\DigitalKassaApiV21ErrorException;
+use DF\DigitalKassa\Exceptions\DigitalKassaApiV2ErrorException;
 use DF\DigitalKassa\Exceptions\TransportException;
 use DF\DigitalKassa\Interfaces\ApiRequestInterface;
 use DF\DigitalKassa\V2\DTO\CGroup\CGroupInfoResponseDTO;
@@ -285,7 +285,7 @@ final readonly class DigitalKassaApi
         string $sdkMethod,
         ApiRequestInterface $request,
         ResponseInterface $response,
-    ): DigitalKassaApiV21ErrorException {
+    ): DigitalKassaApiV2ErrorException {
         $rawBody = (string) $response->getBody();
         $decoded = json_decode($rawBody, true);
 
@@ -307,7 +307,7 @@ final readonly class DigitalKassaApi
             }
         }
 
-        return new DigitalKassaApiV21ErrorException(
+        return new DigitalKassaApiV2ErrorException(
             sdkMethod: $sdkMethod,
             httpMethod: strtoupper($request->getMethod()->value),
             uri: $request->getUri(),

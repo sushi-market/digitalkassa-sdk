@@ -7,7 +7,7 @@ namespace DF\DigitalKassa\Exceptions;
 use DF\DigitalKassa\V2\DTO\Shared\ErrorDTO;
 use RuntimeException;
 
-class DigitalKassaApiV21ErrorException extends RuntimeException implements DigitalKassaException
+class DigitalKassaApiV2ErrorException extends RuntimeException implements DigitalKassaException
 {
     /**
      * @param  ErrorDTO[]  $errors
