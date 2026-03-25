@@ -76,7 +76,6 @@ final readonly class DigitalKassaApi
     public function getCGroupInfo(): CGroupInfoResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'getCGroupInfo',
             request: new GetCGroupInfoRequest(
                 cGroupId: $this->credentials->cGroupId,
             ),
@@ -91,7 +90,6 @@ final readonly class DigitalKassaApi
     public function createReceipt(ReceiptRequestDTO $requestDTO): ReceiptResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'createReceipt',
             request: new CreateReceiptRequest(
                 cGroupId: $this->credentials->cGroupId,
                 receiptId: $requestDTO->receipt_id,
@@ -108,7 +106,6 @@ final readonly class DigitalKassaApi
     public function getReceiptInfo(ReceiptInfoRequestDTO $requestDTO): ReceiptInfoResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'getReceiptInfo',
             request: new GetReceiptInfoRequest(
                 cGroupId: $this->credentials->cGroupId,
                 receiptId: $requestDTO->receipt_id,
@@ -124,7 +121,6 @@ final readonly class DigitalKassaApi
     public function createCorrectionReceipt(CorrectionReceiptRequestDTO $requestDTO): CorrectionReceiptResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'createCorrectionReceipt',
             request: new CreateCorrectionReceiptRequest(
                 cGroupId: $this->credentials->cGroupId,
                 receiptId: $requestDTO->receipt_id,
@@ -141,7 +137,6 @@ final readonly class DigitalKassaApi
     public function getCorrectionReceiptInfo(CorrectionReceiptInfoRequestDTO $requestDTO): CorrectionReceiptInfoResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'getCorrectionReceiptInfo',
             request: new GetCorrectionReceiptInfoRequest(
                 cGroupId: $this->credentials->cGroupId,
                 receiptId: $requestDTO->receipt_id,
@@ -157,7 +152,6 @@ final readonly class DigitalKassaApi
     public function getShiftReport(): ShiftReportResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'getShiftReport',
             request: new GetShiftReportRequest(
                 cGroupId: $this->credentials->cGroupId,
             ),
@@ -172,7 +166,6 @@ final readonly class DigitalKassaApi
     public function openShift(?ShiftRequestDTO $requestDTO = null): ShiftResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'openShift',
             request: new OpenShiftRequest(
                 cGroupId: $this->credentials->cGroupId,
                 requestDTO: $requestDTO,
@@ -188,7 +181,6 @@ final readonly class DigitalKassaApi
     public function closeShift(?ShiftRequestDTO $requestDTO = null): ShiftResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'closeShift',
             request: new CloseShiftRequest(
                 cGroupId: $this->credentials->cGroupId,
                 requestDTO: $requestDTO,
@@ -204,7 +196,6 @@ final readonly class DigitalKassaApi
     public function changeShiftMode(ShiftModeRequestDTO $requestDTO): ShiftResponseDTO
     {
         $json = $this->send(
-            sdkMethod: 'changeShiftMode',
             request: new ChangeShiftModeRequest(
                 cGroupId: $this->credentials->cGroupId,
                 requestDTO: $requestDTO,
@@ -217,7 +208,7 @@ final readonly class DigitalKassaApi
     /**
      * Выполняет HTTP-запрос к API, добавляет авторизацию и преобразует сетевые ошибки в исключения SDK.
      */
-    private function send(string $sdkMethod, ApiRequestInterface $request): ResponseInterface
+    private function send(ApiRequestInterface $request): ResponseInterface
     {
         // Весь transport централизован здесь: request-объекты описывают endpoint,
         // а клиент добавляет auth, сериализует DTO и нормализует ошибки сети/API.
@@ -247,21 +238,21 @@ final readonly class DigitalKassaApi
 
             if ($response !== null) {
                 throw $this->normalizeApiError(
-                    sdkMethod: $sdkMethod,
+                    sdkMethod: get_class($request),
                     request: $request,
                     response: $response,
                 );
             }
 
             throw new TransportException(
-                sdkMethod: $sdkMethod,
+                sdkMethod: get_class($request),
                 httpMethod: strtoupper($request->getMethod()->value),
                 uri: $uri,
                 previous: $e,
             );
         } catch (Exception $e) {
             throw new TransportException(
-                sdkMethod: $sdkMethod,
+                sdkMethod: get_class($request),
                 httpMethod: strtoupper($request->getMethod()->value),
                 uri: $uri,
                 previous: $e,
