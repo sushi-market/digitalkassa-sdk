@@ -7,6 +7,7 @@ namespace Tests\Unit;
 use DF\DigitalKassa\Exceptions\InvalidCredentialsException;
 use DF\DigitalKassa\V2\ValueObjects\Credentials;
 use PHPUnit\Framework\TestCase;
+use TypeError;
 
 final class CredentialsTest extends TestCase
 {
@@ -18,14 +19,14 @@ final class CredentialsTest extends TestCase
         new Credentials(
             actorId: '',
             actorToken: 'token',
-            cGroupId: '1',
+            cGroupId: 1,
         );
     }
 
     /** Нечисловой `cGroupId` не должен проходить валидацию. */
     public function test_it_validates_c_group_id_format(): void
     {
-        $this->expectException(InvalidCredentialsException::class);
+        $this->expectException(TypeError::class);
 
         new Credentials(
             actorId: '123',
@@ -56,17 +57,5 @@ final class CredentialsTest extends TestCase
             actorToken: 'token',
             cGroupId: 0,
         );
-    }
-
-    /** Строковый числовой `cGroupId` должен приводиться к `int`. */
-    public function test_it_normalizes_numeric_string_c_group_id_to_integer(): void
-    {
-        $credentials = new Credentials(
-            actorId: '123',
-            actorToken: 'token',
-            cGroupId: '42',
-        );
-
-        self::assertSame(42, $credentials->cGroupId);
     }
 }
