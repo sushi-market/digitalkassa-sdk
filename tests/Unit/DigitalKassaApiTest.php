@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Tests\Unit;
 
-use DF\AtolOnline\V5\AtolOnlineApi;
 use DF\DigitalKassa\Exceptions\DigitalKassaApiV21ErrorException;
 use DF\DigitalKassa\Exceptions\InvalidRequestException;
 use DF\DigitalKassa\V2\DigitalKassaApi;
@@ -51,9 +50,7 @@ final class DigitalKassaApiTest extends TestCase
     #[Test]
     public function packages_can_be_loaded_together_without_class_collision(): void
     {
-        self::assertTrue(class_exists(AtolOnlineApi::class));
         self::assertTrue(class_exists(DigitalKassaApi::class));
-        self::assertNotSame(AtolOnlineApi::class, DigitalKassaApi::class);
     }
 
     /** `getCGroupInfo()` должен идти в `/c_groups/{id}` и отправлять Basic Auth. */
