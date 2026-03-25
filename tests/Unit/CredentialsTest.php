@@ -28,6 +28,7 @@ final class CredentialsTest extends TestCase
     {
         $this->expectException(TypeError::class);
 
+        /** @noinspection PhpStrictTypeCheckingInspection */
         new Credentials(
             actorId: '123',
             actorToken: 'token',
