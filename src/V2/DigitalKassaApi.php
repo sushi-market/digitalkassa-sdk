@@ -10,35 +10,22 @@ use Brick\JsonMapper\OnExtraProperties;
 use Brick\JsonMapper\OnMissingProperties;
 use DF\DigitalKassa\Enums\HttpAuthType;
 use DF\DigitalKassa\Exceptions\DigitalKassaApiV21ErrorException;
-use DF\DigitalKassa\Exceptions\InvalidRequestException;
 use DF\DigitalKassa\Exceptions\TransportException;
 use DF\DigitalKassa\Interfaces\ApiRequestInterface;
 use DF\DigitalKassa\V2\DTO\CGroup\CGroupInfoResponseDTO;
-use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptDTO;
 use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptInfoRequestDTO;
 use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptInfoResponseDTO;
 use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptRequestDTO;
 use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptResponseDTO;
-use DF\DigitalKassa\V2\DTO\Receipt\ItemDTO;
-use DF\DigitalKassa\V2\DTO\Receipt\ReceiptDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptInfoRequestDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptInfoResponseDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptRequestDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptResponseDTO;
-use DF\DigitalKassa\V2\DTO\Shared\AmountDTO;
-use DF\DigitalKassa\V2\DTO\Shared\CorrectionNotifyDTO;
 use DF\DigitalKassa\V2\DTO\Shared\ErrorDTO;
-use DF\DigitalKassa\V2\DTO\Shared\NotifyDTO;
-use DF\DigitalKassa\V2\DTO\Shared\OkPayloadDTO;
-use DF\DigitalKassa\V2\DTO\Shared\OkShiftPayloadDTO;
-use DF\DigitalKassa\V2\DTO\Shared\OkShiftStatusPayloadDTO;
 use DF\DigitalKassa\V2\DTO\Shift\ShiftModeRequestDTO;
 use DF\DigitalKassa\V2\DTO\Shift\ShiftReportResponseDTO;
 use DF\DigitalKassa\V2\DTO\Shift\ShiftRequestDTO;
 use DF\DigitalKassa\V2\DTO\Shift\ShiftResponseDTO;
-use DF\DigitalKassa\V2\Enums\ProcessingStatus;
-use DF\DigitalKassa\V2\Enums\ShiftMode;
-use DF\DigitalKassa\V2\Enums\ShiftStatus;
 use DF\DigitalKassa\V2\Requests\ChangeShiftModeRequest;
 use DF\DigitalKassa\V2\Requests\CloseShiftRequest;
 use DF\DigitalKassa\V2\Requests\CreateCorrectionReceiptRequest;
@@ -88,11 +75,14 @@ final readonly class DigitalKassaApi
      */
     public function getCGroupInfo(): CGroupInfoResponseDTO
     {
-        $response = $this->send('getCGroupInfo', new GetCGroupInfoRequest(
-            cGroupId: $this->credentials->cGroupId,
-        ));
+        $json = $this->send(
+            sdkMethod: 'getCGroupInfo',
+            request: new GetCGroupInfoRequest(
+                cGroupId: $this->credentials->cGroupId,
+            ),
+        )->getBody()->getContents();
 
-        return $this->mapJson((string) $response->getBody(), CGroupInfoResponseDTO::class);
+        return $this->mapper->map($json, CGroupInfoResponseDTO::class);
     }
 
     /**
@@ -100,13 +90,16 @@ final readonly class DigitalKassaApi
      */
     public function createReceipt(ReceiptRequestDTO $requestDTO): ReceiptResponseDTO
     {
-        $response = $this->send('createReceipt', new CreateReceiptRequest(
-            cGroupId: $this->credentials->cGroupId,
-            receiptId: $requestDTO->receipt_id,
-            receiptDTO: $requestDTO->receipt,
-        ));
+        $json = $this->send(
+            sdkMethod: 'createReceipt',
+            request: new CreateReceiptRequest(
+                cGroupId: $this->credentials->cGroupId,
+                receiptId: $requestDTO->receipt_id,
+                receiptDTO: $requestDTO->receipt,
+            ),
+        )->getBody()->getContents();
 
-        return $this->mapReceiptResponse($response, ReceiptResponseDTO::class);
+        return $this->mapper->map($json, ReceiptResponseDTO::class);
     }
 
     /**
@@ -114,12 +107,15 @@ final readonly class DigitalKassaApi
      */
     public function getReceiptInfo(ReceiptInfoRequestDTO $requestDTO): ReceiptInfoResponseDTO
     {
-        $response = $this->send('getReceiptInfo', new GetReceiptInfoRequest(
-            cGroupId: $this->credentials->cGroupId,
-            receiptId: $requestDTO->receipt_id,
-        ));
+        $json = $this->send(
+            sdkMethod: 'getReceiptInfo',
+            request: new GetReceiptInfoRequest(
+                cGroupId: $this->credentials->cGroupId,
+                receiptId: $requestDTO->receipt_id,
+            ),
+        )->getBody()->getContents();
 
-        return $this->mapReceiptResponse($response, ReceiptInfoResponseDTO::class);
+        return $this->mapper->map($json, ReceiptInfoResponseDTO::class);
     }
 
     /**
@@ -127,13 +123,16 @@ final readonly class DigitalKassaApi
      */
     public function createCorrectionReceipt(CorrectionReceiptRequestDTO $requestDTO): CorrectionReceiptResponseDTO
     {
-        $response = $this->send('createCorrectionReceipt', new CreateCorrectionReceiptRequest(
-            cGroupId: $this->credentials->cGroupId,
-            receiptId: $requestDTO->receipt_id,
-            receiptDTO: $requestDTO->correction_receipt,
-        ));
+        $json = $this->send(
+            sdkMethod: 'createCorrectionReceipt',
+            request: new CreateCorrectionReceiptRequest(
+                cGroupId: $this->credentials->cGroupId,
+                receiptId: $requestDTO->receipt_id,
+                receiptDTO: $requestDTO->correction_receipt,
+            ),
+        )->getBody()->getContents();
 
-        return $this->mapCorrectionReceiptResponse($response, CorrectionReceiptResponseDTO::class);
+        return $this->mapper->map($json, CorrectionReceiptResponseDTO::class);
     }
 
     /**
@@ -141,12 +140,15 @@ final readonly class DigitalKassaApi
      */
     public function getCorrectionReceiptInfo(CorrectionReceiptInfoRequestDTO $requestDTO): CorrectionReceiptInfoResponseDTO
     {
-        $response = $this->send('getCorrectionReceiptInfo', new GetCorrectionReceiptInfoRequest(
-            cGroupId: $this->credentials->cGroupId,
-            receiptId: $requestDTO->receipt_id,
-        ));
+        $json = $this->send(
+            sdkMethod: 'getCorrectionReceiptInfo',
+            request: new GetCorrectionReceiptInfoRequest(
+                cGroupId: $this->credentials->cGroupId,
+                receiptId: $requestDTO->receipt_id,
+            ),
+        )->getBody()->getContents();
 
-        return $this->mapCorrectionReceiptResponse($response, CorrectionReceiptInfoResponseDTO::class);
+        return $this->mapper->map($json, CorrectionReceiptInfoResponseDTO::class);
     }
 
     /**
@@ -154,19 +156,14 @@ final readonly class DigitalKassaApi
      */
     public function getShiftReport(): ShiftReportResponseDTO
     {
-        $response = $this->send('getShiftReport', new GetShiftReportRequest(
-            cGroupId: $this->credentials->cGroupId,
-        ));
+        $json = $this->send(
+            sdkMethod: 'getShiftReport',
+            request: new GetShiftReportRequest(
+                cGroupId: $this->credentials->cGroupId,
+            ),
+        )->getBody()->getContents();
 
-        /** @var OkShiftStatusPayloadDTO $payload */
-        $payload = $this->mapJson((string) $response->getBody(), OkShiftStatusPayloadDTO::class);
-
-        return new ShiftReportResponseDTO(
-            shift_status: $payload->shift_status !== null ? ShiftStatus::from($payload->shift_status) : null,
-            shift_number: $payload->shift_number,
-            check_number: $payload->check_number,
-            mode: $payload->mode !== null ? ShiftMode::from($payload->mode) : null,
-        );
+        return $this->mapper->map($json, ShiftReportResponseDTO::class);
     }
 
     /**
@@ -174,12 +171,15 @@ final readonly class DigitalKassaApi
      */
     public function openShift(?ShiftRequestDTO $requestDTO = null): ShiftResponseDTO
     {
-        $response = $this->send('openShift', new OpenShiftRequest(
-            cGroupId: $this->credentials->cGroupId,
-            requestDTO: $requestDTO,
-        ));
+        $json = $this->send(
+            sdkMethod: 'openShift',
+            request: new OpenShiftRequest(
+                cGroupId: $this->credentials->cGroupId,
+                requestDTO: $requestDTO,
+            ),
+        )->getBody()->getContents();
 
-        return $this->mapShiftResponse($response);
+        return $this->mapper->map($json, ShiftResponseDTO::class);
     }
 
     /**
@@ -187,12 +187,15 @@ final readonly class DigitalKassaApi
      */
     public function closeShift(?ShiftRequestDTO $requestDTO = null): ShiftResponseDTO
     {
-        $response = $this->send('closeShift', new CloseShiftRequest(
-            cGroupId: $this->credentials->cGroupId,
-            requestDTO: $requestDTO,
-        ));
+        $json = $this->send(
+            sdkMethod: 'closeShift',
+            request: new CloseShiftRequest(
+                cGroupId: $this->credentials->cGroupId,
+                requestDTO: $requestDTO,
+            ),
+        )->getBody()->getContents();
 
-        return $this->mapShiftResponse($response);
+        return $this->mapper->map($json, ShiftResponseDTO::class);
     }
 
     /**
@@ -200,12 +203,15 @@ final readonly class DigitalKassaApi
      */
     public function changeShiftMode(ShiftModeRequestDTO $requestDTO): ShiftResponseDTO
     {
-        $response = $this->send('changeShiftMode', new ChangeShiftModeRequest(
-            cGroupId: $this->credentials->cGroupId,
-            requestDTO: $requestDTO,
-        ));
+        $json = $this->send(
+            sdkMethod: 'changeShiftMode',
+            request: new ChangeShiftModeRequest(
+                cGroupId: $this->credentials->cGroupId,
+                requestDTO: $requestDTO,
+            ),
+        )->getBody()->getContents();
 
-        return $this->mapShiftResponse($response);
+        return $this->mapper->map($json, ShiftResponseDTO::class);
     }
 
     /**
@@ -282,86 +288,6 @@ final readonly class DigitalKassaApi
         $headers = array_merge($headers, $request->getHeaders());
 
         return $headers;
-    }
-
-    /**
-     * Преобразует JSON-строку ответа API в экземпляр указанного DTO-класса.
-     *
-     * @template T of object
-     *
-     * @param  class-string<T>  $className
-     * @return T
-     */
-    private function mapJson(string $json, string $className): object
-    {
-        return $this->mapper->map($json, $className);
-    }
-
-    /**
-     * Преобразует ответ API по обычному чеку в DTO с учетом асинхронного статуса обработки.
-     *
-     * @template T of ReceiptResponseDTO|ReceiptInfoResponseDTO
-     *
-     * @param  class-string<T>  $className
-     * @return T
-     */
-    private function mapReceiptResponse(ResponseInterface $response, string $className): object
-    {
-        // DigitalKassa может принять чек в обработку и вернуть 202 без payload.
-        if ($response->getStatusCode() === 202) {
-            return new $className(status: ProcessingStatus::ACCEPTED);
-        }
-
-        /** @var OkPayloadDTO $payload */
-        $payload = $this->mapJson((string) $response->getBody(), OkPayloadDTO::class);
-
-        return new $className(
-            status: ProcessingStatus::COMPLETED,
-            doc: $payload->doc,
-            cashbox: $payload->cashbox,
-            service: $payload->service,
-        );
-    }
-
-    /**
-     * Преобразует ответ API по чеку коррекции в DTO с учетом промежуточного статуса обработки.
-     *
-     * @template T of CorrectionReceiptResponseDTO|CorrectionReceiptInfoResponseDTO
-     *
-     * @param  class-string<T>  $className
-     * @return T
-     */
-    private function mapCorrectionReceiptResponse(ResponseInterface $response, string $className): object
-    {
-        // Для чека коррекции логика статусов такая же, как и для обычного чека.
-        if ($response->getStatusCode() === 202) {
-            return new $className(status: ProcessingStatus::ACCEPTED);
-        }
-
-        /** @var OkPayloadDTO $payload */
-        $payload = $this->mapJson((string) $response->getBody(), OkPayloadDTO::class);
-
-        return new $className(
-            status: ProcessingStatus::COMPLETED,
-            doc: $payload->doc,
-            cashbox: $payload->cashbox,
-            service: $payload->service,
-        );
-    }
-
-    /**
-     * Преобразует ответ API по операциям со сменой в DTO с фискальными реквизитами.
-     */
-    private function mapShiftResponse(ResponseInterface $response): ShiftResponseDTO
-    {
-        /** @var OkShiftPayloadDTO $payload */
-        $payload = $this->mapJson((string) $response->getBody(), OkShiftPayloadDTO::class);
-
-        return new ShiftResponseDTO(
-            shift_number: $payload->shift_number,
-            fd_number: $payload->fd_number,
-            fiscal_sign: $payload->fiscal_sign,
-        );
     }
 
     /**
