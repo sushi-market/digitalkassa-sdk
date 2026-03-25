@@ -23,6 +23,7 @@ use DF\DigitalKassa\V2\DTO\Receipt\ReceiptRequestDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptResponseDTO;
 use DF\DigitalKassa\V2\DTO\Shared\ErrorDTO;
 use DF\DigitalKassa\V2\DTO\Shift\ShiftModeRequestDTO;
+use DF\DigitalKassa\V2\DTO\Shift\ShiftModeResponseDTO;
 use DF\DigitalKassa\V2\DTO\Shift\ShiftReportResponseDTO;
 use DF\DigitalKassa\V2\DTO\Shift\ShiftRequestDTO;
 use DF\DigitalKassa\V2\DTO\Shift\ShiftResponseDTO;
@@ -193,7 +194,7 @@ final readonly class DigitalKassaApi
     /**
      * Меняет режим смены, например переводит кассу между обычным и автономным режимом.
      */
-    public function changeShiftMode(ShiftModeRequestDTO $requestDTO): ShiftResponseDTO
+    public function changeShiftMode(ShiftModeRequestDTO $requestDTO): ShiftModeResponseDTO
     {
         $json = $this->send(
             request: new ChangeShiftModeRequest(
@@ -202,7 +203,7 @@ final readonly class DigitalKassaApi
             ),
         )->getBody()->getContents();
 
-        return $this->mapper->map($json, ShiftResponseDTO::class);
+        return $this->mapper->map($json, ShiftModeResponseDTO::class);
     }
 
     /**
