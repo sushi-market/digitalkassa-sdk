@@ -100,8 +100,6 @@ final readonly class DigitalKassaApi
      */
     public function createReceipt(ReceiptRequestDTO $requestDTO): ReceiptResponseDTO
     {
-        $this->validateReceiptRequest($requestDTO);
-
         $response = $this->send('createReceipt', new CreateReceiptRequest(
             cGroupId: $this->credentials->cGroupId,
             receiptId: $requestDTO->receipt_id,
@@ -116,8 +114,6 @@ final readonly class DigitalKassaApi
      */
     public function getReceiptInfo(ReceiptInfoRequestDTO $requestDTO): ReceiptInfoResponseDTO
     {
-        $this->assertReceiptId($requestDTO->receipt_id, '$receipt_id');
-
         $response = $this->send('getReceiptInfo', new GetReceiptInfoRequest(
             cGroupId: $this->credentials->cGroupId,
             receiptId: $requestDTO->receipt_id,
@@ -131,8 +127,6 @@ final readonly class DigitalKassaApi
      */
     public function createCorrectionReceipt(CorrectionReceiptRequestDTO $requestDTO): CorrectionReceiptResponseDTO
     {
-        $this->validateCorrectionReceiptRequest($requestDTO);
-
         $response = $this->send('createCorrectionReceipt', new CreateCorrectionReceiptRequest(
             cGroupId: $this->credentials->cGroupId,
             receiptId: $requestDTO->receipt_id,
@@ -147,8 +141,6 @@ final readonly class DigitalKassaApi
      */
     public function getCorrectionReceiptInfo(CorrectionReceiptInfoRequestDTO $requestDTO): CorrectionReceiptInfoResponseDTO
     {
-        $this->assertReceiptId($requestDTO->receipt_id, '$receipt_id');
-
         $response = $this->send('getCorrectionReceiptInfo', new GetCorrectionReceiptInfoRequest(
             cGroupId: $this->credentials->cGroupId,
             receiptId: $requestDTO->receipt_id,
@@ -182,8 +174,6 @@ final readonly class DigitalKassaApi
      */
     public function openShift(?ShiftRequestDTO $requestDTO = null): ShiftResponseDTO
     {
-        $this->validateShiftRequest($requestDTO);
-
         $response = $this->send('openShift', new OpenShiftRequest(
             cGroupId: $this->credentials->cGroupId,
             requestDTO: $requestDTO,
@@ -197,8 +187,6 @@ final readonly class DigitalKassaApi
      */
     public function closeShift(?ShiftRequestDTO $requestDTO = null): ShiftResponseDTO
     {
-        $this->validateShiftRequest($requestDTO);
-
         $response = $this->send('closeShift', new CloseShiftRequest(
             cGroupId: $this->credentials->cGroupId,
             requestDTO: $requestDTO,
@@ -439,185 +427,5 @@ final readonly class DigitalKassaApi
         $result = array_filter($result, static fn (mixed $value): bool => $value !== null);
 
         return $result;
-    }
-
-    /**
-     * Проверяет идентификатор чека и валидирует состав обычного чека перед отправкой.
-     */
-    private function validateReceiptRequest(ReceiptRequestDTO $requestDTO): void
-    {
-        $this->assertReceiptId($requestDTO->receipt_id, '$receipt_id');
-        $this->validateReceipt($requestDTO->receipt);
-    }
-
-    /**
-     * Проверяет идентификатор и содержимое чека коррекции перед вызовом API.
-     */
-    private function validateCorrectionReceiptRequest(CorrectionReceiptRequestDTO $requestDTO): void
-    {
-        $this->assertReceiptId($requestDTO->receipt_id, '$receipt_id');
-        $this->validateCorrectionReceipt($requestDTO->correction_receipt);
-    }
-
-    /**
-     * Валидирует идентификатор чека по формату, длине и допустимым символам.
-     */
-    private function assertReceiptId(string $receiptId, string $fieldName): void
-    {
-        if ($receiptId === '') {
-            throw new InvalidRequestException("Parameter {$fieldName} cannot be empty");
-        }
-
-        if (strlen($receiptId) > 64) {
-            throw new InvalidRequestException("Parameter {$fieldName} cannot be longer than 64 characters");
-        }
-
-        if (! preg_match('/^[A-Za-z0-9]+$/', $receiptId)) {
-            throw new InvalidRequestException("Parameter {$fieldName} may contain only latin letters and digits");
-        }
-    }
-
-    /**
-     * Проверяет обязательные контактные данные и общую корректность содержимого обычного чека.
-     */
-    private function validateReceipt(ReceiptDTO $receipt): void
-    {
-        if (
-            ($receipt->notify->emails === null || $receipt->notify->emails === [])
-            && $receipt->notify->phone === null
-        ) {
-            throw new InvalidRequestException('Receipt notify must contain at least one email or phone');
-        }
-
-        $this->validateNotifyPhone($receipt->notify);
-        $this->validateCommonReceiptData(
-            items: $receipt->items,
-            amount: $receipt->amount,
-            billingPlace: $receipt->loc->billing_place,
-        );
-    }
-
-    /**
-     * Проверяет дату исправления, контакты и общую структуру чека коррекции.
-     */
-    private function validateCorrectionReceipt(CorrectionReceiptDTO $receipt): void
-    {
-        if ($receipt->corrected_date === '') {
-            throw new InvalidRequestException('Correction receipt corrected_date cannot be empty');
-        }
-
-        if (! preg_match('/^\d{2}\.\d{2}\.\d{4}$/', $receipt->corrected_date)) {
-            throw new InvalidRequestException('Correction receipt corrected_date must be in DD.MM.YYYY format');
-        }
-
-        if ($receipt->notify !== null) {
-            $this->validateNotifyPhone($receipt->notify);
-        }
-
-        $this->validateCommonReceiptData(
-            items: $receipt->items,
-            amount: $receipt->amount,
-            billingPlace: $receipt->loc->billing_place,
-        );
-    }
-
-    /**
-     * Проверяет, что номер телефона для уведомлений передан в международном формате E.164.
-     */
-    private function validateNotifyPhone(NotifyDTO|CorrectionNotifyDTO $notify): void
-    {
-        if ($notify->phone !== null && ! preg_match('/^\+[1-9]\d{1,14}$/', $notify->phone)) {
-            throw new InvalidRequestException('Phone must be in E.164 format');
-        }
-    }
-
-    /**
-     * Проверяет общие данные чека: место расчета, позиции, суммы по товарам и видам оплаты.
-     *
-     * @param  ItemDTO[]  $items
-     */
-    private function validateCommonReceiptData(array $items, AmountDTO $amount, string $billingPlace): void
-    {
-        if ($billingPlace === '') {
-            throw new InvalidRequestException('loc.billing_place cannot be empty');
-        }
-
-        if ($items === []) {
-            throw new InvalidRequestException('Receipt must contain at least one item');
-        }
-
-        $itemsTotal = 0.0;
-
-        foreach ($items as $index => $item) {
-            $fieldPrefix = 'items['.$index.']';
-
-            if ($item->quantity < 0.001 || $item->quantity > 99999.999) {
-                throw new InvalidRequestException("{$fieldPrefix}.quantity must be between 0.001 and 99999.999");
-            }
-
-            $this->assertMoneyPrecision($item->price, "{$fieldPrefix}.price");
-            $this->assertMoneyPrecision($item->amount, "{$fieldPrefix}.amount");
-
-            if ($item->excise !== null) {
-                $this->assertMoneyPrecision($item->excise, "{$fieldPrefix}.excise");
-            }
-
-            // Сверяем сумму позиции после округления до копеек, чтобы ловить расхождения
-            // до отправки запроса в кассу.
-            $expectedAmount = round($item->price * $item->quantity, 2);
-
-            if (abs($expectedAmount - round($item->amount, 2)) > 0.00001) {
-                throw new InvalidRequestException("{$fieldPrefix}.amount must match price * quantity");
-            }
-
-            $itemsTotal += $item->amount;
-        }
-
-        foreach ([
-            'cash' => $amount->cash,
-            'cashless' => $amount->cashless,
-            'prepayment' => $amount->prepayment,
-            'postpayment' => $amount->postpayment,
-            'barter' => $amount->barter,
-        ] as $field => $value) {
-            if ($value !== null) {
-                $this->assertMoneyPrecision($value, "amount.{$field}");
-            }
-        }
-
-        $paymentTotal = (float) ($amount->cash ?? 0)
-            + (float) ($amount->cashless ?? 0)
-            + (float) ($amount->prepayment ?? 0)
-            + (float) ($amount->postpayment ?? 0)
-            + (float) ($amount->barter ?? 0);
-
-        // Сумма по всем видам оплат должна совпадать с итогом по позициям чека.
-        if (abs(round($itemsTotal, 2) - round($paymentTotal, 2)) > 0.00001) {
-            throw new InvalidRequestException('Sum of amount.* must match sum of items[].amount');
-        }
-    }
-
-    /**
-     * Проверяет, что денежное значение не содержит больше двух знаков после запятой.
-     */
-    private function assertMoneyPrecision(float $value, string $fieldName): void
-    {
-        if (abs($value - round($value, 2)) > 0.0000001) {
-            throw new InvalidRequestException("{$fieldName} must not contain more than 2 decimal places");
-        }
-    }
-
-    /**
-     * Валидирует данные смены и, если ИНН передан, проверяет его длину.
-     */
-    private function validateShiftRequest(?ShiftRequestDTO $requestDTO): void
-    {
-        if ($requestDTO === null) {
-            return;
-        }
-
-        if ($requestDTO->tin !== null && strlen($requestDTO->tin) !== 12) {
-            throw new InvalidRequestException('Shift tin must contain exactly 12 characters');
-        }
     }
 }
