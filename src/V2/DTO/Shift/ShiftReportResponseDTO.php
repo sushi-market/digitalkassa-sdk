@@ -10,9 +10,9 @@ use DF\DigitalKassa\V2\Enums\ShiftStatus;
 final readonly class ShiftReportResponseDTO
 {
     public function __construct(
-        public ?ShiftStatus $shift_status = null,
-        public ?int $shift_number = null,
-        public ?int $check_number = null,
-        public ?ShiftMode $mode = null,
+        public ShiftStatus $shift_status,
+        public int $shift_number,
+        public int $check_number,
+        public ShiftMode $mode,
     ) {}
 }
