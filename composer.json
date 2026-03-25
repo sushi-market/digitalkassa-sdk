@@ -19,7 +19,6 @@
         "laravel/pint": "^1.25.0",
         "phpunit/phpunit": "^11.5",
         "psy/psysh": "^0.12.14",
-        "sushi-market/atol-online-sdk": "^1.2.0",
         "symfony/var-dumper": "^7.3",
         "phpstan/phpstan": "^2.1"
     },
