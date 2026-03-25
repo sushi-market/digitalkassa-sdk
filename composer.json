@@ -19,7 +19,7 @@
         "laravel/pint": "^1.25.0",
         "phpunit/phpunit": "^11.5",
         "psy/psysh": "^0.12.14",
-        "symfony/var-dumper": "^7.3",
+        "symfony/var-dumper": "^8.0",
         "phpstan/phpstan": "^2.1"
     },
     "autoload": {
