@@ -39,9 +39,6 @@ final readonly class GetCGroupInfoRequest implements ApiRequestInterface
         return null;
     }
 
-    /**
-     * @return array<string, string>
-     */
     public function getHeaders(): array
     {
         return [];
