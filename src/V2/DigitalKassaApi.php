@@ -17,6 +17,7 @@ use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptInfoRequestDTO;
 use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptInfoResponseDTO;
 use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptRequestDTO;
 use DF\DigitalKassa\V2\DTO\CorrectionReceipt\CorrectionReceiptResponseDTO;
+use DF\DigitalKassa\V2\DTO\Receipt\ReceiptDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptInfoRequestDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptInfoResponseDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptRequestDTO;
