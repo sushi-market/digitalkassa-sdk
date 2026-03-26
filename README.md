@@ -1,7 +1,6 @@
 # DigitalKassa SDK for PHP
 
 [![PHP Version](https://img.shields.io/badge/PHP-8.4%2B-blue.svg)](https://php.net)
-[![Tests](https://github.com/sushi-market/digitalkassa-sdk/actions/workflows/tests.yml/badge.svg?branch=master)](https://github.com/sushi-market/digitalkassa-sdk/actions/workflows/tests.yml)
 [![Latest Version](https://img.shields.io/github/release/sushi-market/digitalkassa-sdk.svg?style=flat-square)](https://github.com/sushi-market/digitalkassa-sdk/releases)
 [![Total Downloads](https://img.shields.io/packagist/dt/sushi-market/digitalkassa-sdk.svg?style=flat-square)](https://packagist.org/packages/sushi-market/digitalkassa-sdk)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
