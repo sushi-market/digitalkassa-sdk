@@ -13,15 +13,15 @@ use DF\DigitalKassa\V2\DTO\Shared\LocationDTO;
 use DF\DigitalKassa\V2\DTO\Shared\NotifyDTO;
 use DF\DigitalKassa\V2\DTO\Shared\ServiceDTO;
 use DF\DigitalKassa\V2\Enums\InternetMode;
-use DF\DigitalKassa\V2\Enums\ReceiptType1054;
+use DF\DigitalKassa\V2\Enums\ReceiptType;
 use DF\DigitalKassa\V2\Enums\Taxation;
 use DF\DigitalKassa\V2\Enums\Timezone;
 
 final readonly class ReceiptDTO
 {
-    /** @param ItemDTO[] $items */
+    /** @param ReceiptItemDTO[] $items */
     public function __construct(
-        public ReceiptType1054 $type,
+        public ReceiptType $type,
         public array $items,
         public Taxation $taxation,
         public InternetMode $is_internet,

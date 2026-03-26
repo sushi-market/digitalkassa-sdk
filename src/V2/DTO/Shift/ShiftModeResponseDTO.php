@@ -7,7 +7,7 @@ namespace DF\DigitalKassa\V2\DTO\Shift;
 use DF\DigitalKassa\V2\Enums\ShiftMode;
 use DF\DigitalKassa\V2\Enums\ShiftStatus;
 
-final readonly class ShiftReportResponseDTO
+final readonly class ShiftModeResponseDTO
 {
     public function __construct(
         public ShiftStatus $shift_status,

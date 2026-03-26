@@ -6,15 +6,15 @@ namespace DF\DigitalKassa\V2\DTO\Receipt;
 
 use DF\DigitalKassa\V2\DTO\Shared\AgentDTO;
 use DF\DigitalKassa\V2\DTO\Shared\MarkingDTO;
-use DF\DigitalKassa\V2\Enums\ItemType;
+use DF\DigitalKassa\V2\Enums\ReceiptItemType;
 use DF\DigitalKassa\V2\Enums\PaymentMethod;
 use DF\DigitalKassa\V2\Enums\Unit;
 use DF\DigitalKassa\V2\Enums\VatType;
 
-final readonly class ItemDTO
+final readonly class ReceiptItemDTO
 {
     public function __construct(
-        public ItemType $type,
+        public ReceiptItemType $type,
         public string $name,
         public float $price,
         public float $quantity,

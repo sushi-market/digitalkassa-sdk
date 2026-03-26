@@ -90,16 +90,16 @@ $net = $vat->removeVat($gross);
 ## Быстрый пример создания чека
 
 ```php
-use DF\DigitalKassa\V2\DTO\Receipt\ItemDTO;
+use DF\DigitalKassa\V2\DTO\Receipt\ReceiptItemDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptDTO;
 use DF\DigitalKassa\V2\DTO\Receipt\ReceiptRequestDTO;
 use DF\DigitalKassa\V2\DTO\Shared\AmountDTO;
 use DF\DigitalKassa\V2\DTO\Shared\LocationDTO;
 use DF\DigitalKassa\V2\DTO\Shared\NotifyDTO;
 use DF\DigitalKassa\V2\Enums\InternetMode;
-use DF\DigitalKassa\V2\Enums\ItemType;
+use DF\DigitalKassa\V2\Enums\ReceiptItemType;
 use DF\DigitalKassa\V2\Enums\PaymentMethod;
-use DF\DigitalKassa\V2\Enums\ReceiptType1054;
+use DF\DigitalKassa\V2\Enums\ReceiptType;
 use DF\DigitalKassa\V2\Enums\Taxation;
 use DF\DigitalKassa\V2\Enums\Timezone;
 use DF\DigitalKassa\V2\Enums\Unit;
@@ -108,10 +108,10 @@ use DF\DigitalKassa\V2\Enums\VatType;
 $response = $digitalkassa->createReceipt(new ReceiptRequestDTO(
     receipt_id: 'receipt123',
     receipt: new ReceiptDTO(
-        type: ReceiptType1054::SELL,
+        type: ReceiptType::SELL,
         items: [
-            new ItemDTO(
-                type: ItemType::PRODUCT,
+            new ReceiptItemDTO(
+                type: ReceiptItemType::PRODUCT,
                 name: 'Coffee',
                 price: 100.00,
                 quantity: 1.0,

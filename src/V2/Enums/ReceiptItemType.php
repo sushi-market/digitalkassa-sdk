@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace DF\DigitalKassa\V2\Enums;
 
-enum ItemType: int
+enum ReceiptItemType: int
 {
     case PRODUCT = 1;
     case EXCISE_PRODUCT = 2;

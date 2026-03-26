@@ -7,8 +7,8 @@ namespace DF\DigitalKassa\V2\DTO\Shift;
 final readonly class ShiftResponseDTO
 {
     public function __construct(
-        public ?int $shift_number = null,
-        public ?int $fd_number = null,
-        public ?int $fiscal_sign = null,
+        public int $shift_number,
+        public int $fd_number,
+        public int $fiscal_sign,
     ) {}
 }
