@@ -7,14 +7,12 @@ namespace DF\DigitalKassa\V2\DTO\CorrectionReceipt;
 use DF\DigitalKassa\V2\DTO\Shared\CashboxDTO;
 use DF\DigitalKassa\V2\DTO\Shared\DocDTO;
 use DF\DigitalKassa\V2\DTO\Shared\ReceiptServiceInfoDTO;
-use DF\DigitalKassa\V2\Enums\ProcessingStatus;
 
 final readonly class CorrectionReceiptResponseDTO
 {
     public function __construct(
-        public ProcessingStatus $status,
-        public ?DocDTO $doc = null,
-        public ?CashboxDTO $cashbox = null,
-        public ?ReceiptServiceInfoDTO $service = null,
+        public DocDTO $doc,
+        public CashboxDTO $cashbox,
+        public ReceiptServiceInfoDTO $service,
     ) {}
 }
